@@ -1,0 +1,9 @@
+.bundle/
+log/*.log
+pkg/
+spec/dumy/db/*.sqlite3
+spec/dumy/db/*.sqlite3-journal
+spec/dumy/log/*.log
+spec/dumy/tmp/
+npm-debug.log
+*.log
