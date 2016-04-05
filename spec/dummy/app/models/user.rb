@@ -3,6 +3,8 @@ class User < ApplicationRecord
   # relations
   has_many :emails
 
+  include DeviseMongoidMultiEmail
+
   # Dummy Field
   field :name, type: String
 
@@ -13,7 +15,7 @@ class User < ApplicationRecord
          :confirmable
 
   ## Database authenticatable
-  field :email,              type: String, default: ""
+  # field :email,              type: String, default: ""
   field :encrypted_password, type: String, default: ""
 
   ## Recoverable

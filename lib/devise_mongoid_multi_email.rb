@@ -32,15 +32,14 @@ module DeviseMongoidMultiEmail
 						 :pending_reconfirmation?, :email_was,
 						 to: :first_email_record, allow_nil: false
 
-		# Overrides Devise Behavior
-		# using a Eigenclass to position these
-		# methods below the class itself in
-		# the ancestors chain and prepends to
-		# ensure that the methods defined in the
-		# module are way beyond the class definition
+		# Overrides Devise Behavior using a Eigenclass to position these
+		# methods below the class itself in the ancestors chain and
+		# prepends to ensure that the methods defined in the module are
+		# way beyond the class definition
 		class << self
-			prepend ::Devise::MongoidMultiEmail::ClassOverrideMethods
+			prepend ::DeviseMongoidMultiEmail::ClassOverrideMethods
 		end
+
 	end
 end
 

@@ -1,13 +1,9 @@
-module Devise
-	module MongoidMultiEmail
+module DeviseMongoidMultiEmail
+	module EmailDelegator
+		extend ActiveSupport::Concern
 
-		module EmailDelegator
-			extend ActiveSupport::Concern
-
-			included do
-				devise :confirmable
-
-			end
+		included do
+			devise :confirmable
 
 		end
 

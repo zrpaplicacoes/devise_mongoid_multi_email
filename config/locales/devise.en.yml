@@ -1,0 +1,4 @@
+en:
+  devise:
+    failure:
+      access_revoked: The access to this account was revoked because it was not confirmed at all or does not exist anymore
