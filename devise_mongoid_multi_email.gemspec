@@ -21,8 +21,8 @@ Gem::Specification.new do |s|
 
   s.required_ruby_version = '>= 2.1.0'
 
-	s.add_dependency "rails" , ">= 5.0.0.beta3", "< 5.1"
-	s.add_dependency "devise", '>= 4.0.0.rc1'
+	s.add_dependency "rails" , "~> 5.0.0.beta3", "< 5.1"
+	s.add_dependency "devise", '~> 4.0.0.rc1'
 
 	s.add_development_dependency 'rspec-rails', '>= 3.5.0.beta1'
 	s.add_development_dependency 'capybara'
