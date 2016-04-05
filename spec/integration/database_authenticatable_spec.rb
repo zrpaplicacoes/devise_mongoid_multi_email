@@ -1,4 +1,5 @@
 describe 'database authentication', type: :feature do
+
 	let(:user) { create(:user, :with_secondary_emails, amount_of_secondary_emails: 2) }
 	let(:primary_email) { user.primary_email }
 	let(:secondary_emails) { user.secondary_emails }

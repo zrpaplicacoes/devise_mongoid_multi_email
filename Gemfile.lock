@@ -69,6 +69,7 @@ GEM
       rack-test (>= 0.5.4)
       xpath (~> 2.0)
     concurrent-ruby (1.0.1)
+    database_cleaner (1.5.1)
     devise (4.0.0.rc2)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
@@ -179,6 +180,7 @@ PLATFORMS
 DEPENDENCIES
   byebug
   capybara
+  database_cleaner
   devise (>= 4.0.0.rc1)
   devise_mongoid_multi_email!
   factory_girl_rails
