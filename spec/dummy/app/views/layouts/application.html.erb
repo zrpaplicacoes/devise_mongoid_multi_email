@@ -1,15 +1,18 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Dumy</title>
+    <title>Dummy</title>
     <%= csrf_meta_tags %>
-    <%= action_cable_meta_tag %>
 
     <%= stylesheet_link_tag    'application', media: 'all', 'data-turbolinks-track' => 'reload' %>
     <%= javascript_include_tag 'application', 'data-turbolinks-track' => 'reload' %>
   </head>
 
-  <body>
+  <body class="<%= current_user ? 'cpy-signed-in' : 'cpy-signed-out' %>">
+		<%- flash.keys.each do |k| %>
+		  <div class="cpy-error"> <%= flash[k] %> </div>
+		<% end %>
+
     <%= yield %>
   </body>
 </html>

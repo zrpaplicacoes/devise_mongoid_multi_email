@@ -1,10 +1,10 @@
 .bundle/
 log/*.log
 pkg/
-spec/dumy/db/*.sqlite3
-spec/dumy/db/*.sqlite3-journal
-spec/dumy/log/*.log
-spec/dumy/tmp/
+spec/dummy/db/*.sqlite3
+spec/dummy/db/*.sqlite3-journal
+spec/dummy/log/*.log
+spec/dummy/tmp/
 npm-debug.log
 *.log
 !.keep

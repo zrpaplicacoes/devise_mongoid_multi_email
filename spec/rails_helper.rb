@@ -15,4 +15,8 @@ RSpec.configure do |config|
   config.include Devise::TestHelpers, type: :controller
   config.include Devise::TestHelpers, type: :view
   config.include Rails.application.routes.url_helpers
+
+  # Helpers
+  config.include RSpec::Support::UserForm, type: :feature
 end
+
