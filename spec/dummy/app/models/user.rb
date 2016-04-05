@@ -1,8 +1,13 @@
 class User < ApplicationRecord
 
+  # relations
+  has_many :emails
+
+  # Dummy Field
+  field :name, type: String
+
   # Include default devise modules. Others available are:
   # :confirmable, :lockable, :timeoutable and :omniauthable
-
   devise :database_authenticatable, :registerable,
          :recoverable, :rememberable, :trackable, :validatable,
          :confirmable
