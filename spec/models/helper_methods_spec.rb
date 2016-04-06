@@ -2,6 +2,7 @@ describe 'Devise::Login helper methods' do
 	let(:user) { User.new }
 
 	context 'public instance helper methods' do
+
 		it 'includes a method to see if the primary email changed' do
 			expect(user.respond_to? :email_changed?).to be_truthy
 			expect(user.email_changed?).to be_falsy
@@ -19,9 +20,9 @@ describe 'Devise::Login helper methods' do
 				expect(user.email).to eq "test@test.com"
 			end
 
-			it 'returns the user secondary email if the user does not have a primary email' do
+			it 'returns a empty string if the user does not have a primary email' do
 				user.emails << build(:email, :secondary, email: "test@test.com")
-				expect(user.email).to eq "test@test.com"
+				expect(user.email).to eq ""
 			end
 		end
 
@@ -34,6 +35,7 @@ describe 'Devise::Login helper methods' do
 				new_primary_email = build(:email)
 				user.emails << new_primary_email
 				expect(user.first_email_record).to eq new_primary_email
+				expect(user.first_email_record).to eq user.primary_email
 			end
 
 			it 'returns the user secondary email if the user does not have a primary email' do
@@ -128,10 +130,10 @@ describe 'Devise::Login helper methods' do
 				expect(User.find_first_by_auth_conditions( { email: "unavailable_email@zrp.com.br" })).to eq nil
 			end
 
-			it 'returns nil if the email is not confirmed' do
+			it 'returns the user, even if the email is not confirmed' do
 				user = create(:user)
 				expect(user.confirmed?).to be_falsy
-				expect(User.find_first_by_auth_conditions( { email: user.email } )).to eq nil
+				expect(User.find_first_by_auth_conditions( { email: user.email } )).to eq user
 			end
 
 		end

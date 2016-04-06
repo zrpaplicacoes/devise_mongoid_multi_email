@@ -15,12 +15,15 @@ module DeviseMongoidMultiEmail
     end
 
     def email
-      primary_email.try(:email) || primary_email.try(:unconfirmed_email)
+      primary_email.try(:email) || primary_email.try(:unconfirmed_email) || ""
     end
 
     def email=(email)
+      record = primary_email
       if email
-        set_email email, !has_primary_email?
+        create_email email, primary: !has_primary_email?
+      elsif email.blank? && record
+        record.destroy
       end
     end
 
@@ -33,7 +36,7 @@ module DeviseMongoidMultiEmail
     end
 
     def primary_email=(email)
-      set_email email, true
+      create_email email, primary: true
     end
 
     def secondary_emails
@@ -48,7 +51,7 @@ module DeviseMongoidMultiEmail
 
     def valid_emails
       emails.each.select do |email_record|
-        !email_record.destroyed? && !email_record.marked_for_destruction?
+        !email_record.destroyed?
       end
     end
 
@@ -62,11 +65,9 @@ module DeviseMongoidMultiEmail
 
     private
 
-    def set_email email, condition
-      record = emails.build
-      record.unconfirmed_email = email
-      record.primary = condition
-      record.save
+    def create_email email, opts
+      record = self.class.email_class.new({ unconfirmed_email: email, user: self }.merge(opts))
+      self.emails << record
     end
 
   end

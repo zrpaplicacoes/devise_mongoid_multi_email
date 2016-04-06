@@ -10,6 +10,9 @@ require 'database_cleaner'
 Rails.backtrace_cleaner.remove_silencers!
 
 # Load support files
+# Helpers
+Dir["#{File.dirname(__FILE__)}/support/helpers/**/*.rb"].each { |f| require f }
+# Configurations
 Dir["#{File.dirname(__FILE__)}/support/**/*.rb"].each { |f| require f }
 
 RSpec.configure do |config|

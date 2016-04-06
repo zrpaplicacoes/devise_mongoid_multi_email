@@ -1,7 +1,6 @@
 require "devise_mongoid_multi_email/engine"
 
 module DeviseMongoidMultiEmail
-	extend ActiveSupport::Autoload
 	extend ActiveSupport::Concern
 
 	autoload :InstanceHelperMethods    , 'devise_mongoid_multi_email/instance_helper_methods'
@@ -18,7 +17,7 @@ module DeviseMongoidMultiEmail
 		# Includes Email Delegator module in email_class
 		email_class.send :include, EmailDelegator
 
-		# Delegates methods to the first email record available
+		# Delegates methods to the primary email record
 		delegate :skip_confirmation!,
 						 :skip_confirmation_notification!,
 						 :skip_reconfirmation!,
@@ -27,10 +26,10 @@ module DeviseMongoidMultiEmail
 						 :confirmation_token=,
 						 :confirmed_at, :confirmation_sent_at,
 						 :confirmation_sent_at=,
-						 :confirm, :confirmed?,
-						 :unconfirmed_email, :reconfirmation_required?,
+						 :confirm, :unconfirmed_email,
+						 :reconfirmation_required?,
 						 :pending_reconfirmation?, :email_was,
-						 to: :first_email_record, allow_nil: false
+						 to: :primary_email, allow_nil: false
 
 		# Overrides Devise Behavior using a Eigenclass to position these
 		# methods below the class itself in the ancestors chain and

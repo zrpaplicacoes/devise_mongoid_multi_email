@@ -1,7 +1,11 @@
 describe 'Devise integration' do
   context 'when I create an user' do
   	let(:user) { create(:user) }
-  	let(:email_record) { user.first_email_record }
+  	let(:email_record) { user.primary_email }
+
+    it 'expects the user to have a single email record' do
+      expect(user.emails.count).to eq 1
+    end
 
   	it 'has an unconfirmed primary email' do
   		expect(email_record.email).to be nil

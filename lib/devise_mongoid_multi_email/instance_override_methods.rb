@@ -1,7 +1,7 @@
 module DeviseMongoidMultiEmail
 	module InstanceOverrideMethods
 		def active_for_authentication?
-			super && account_active?
+			account_active? && super
 		end
 
 		def inactive_message
@@ -13,6 +13,11 @@ module DeviseMongoidMultiEmail
 	    send_devise_notification(:reset_password_instructions, token, { to: params[:email] } )
 	    token
 	  end
+
+    def confirmed?
+      return false unless emails.any?
+      primary_email ? primary_email.confirmed? : false
+    end
 
 	end
 end
