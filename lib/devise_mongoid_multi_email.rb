@@ -17,9 +17,10 @@ module DeviseMongoidMultiEmail
 		has_many :emails, class_name: "#{self.to_s.demodulize}Email" do
 			def << (records)
 				result = super(records)
+				excluded = result - Array(records)
+				result = result - excluded
 				result.each do |record|
-					next if record.confirmation_sent_at?
-					record.send_confirmation_instructions
+					record.send_confirmation_instructions unless record.primary?
 				end
 				result
 			end

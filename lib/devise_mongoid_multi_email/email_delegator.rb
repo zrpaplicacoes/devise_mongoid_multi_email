@@ -5,6 +5,18 @@ module DeviseMongoidMultiEmail
 		included do
 			devise :confirmable
 
+			def resource_class
+				resource_class_name.constantize
+			end
+
+			def resource_class_name
+				self.class.to_s.demodulize.gsub("Email", "")
+			end
+
+			def resource_relation
+				resource_class_name.underscore.to_sym
+			end
+
 			def email_with_indiferent_access
 				email || unconfirmed_email
 			end
@@ -15,24 +27,31 @@ module DeviseMongoidMultiEmail
 				end
 
 				opts = { to: unconfirmed_email }
-        self.class.send_confirmation_instructions(opts)
+        send_devise_notification(:confirmation_instructions, @raw_confirmation_token, opts)
 			end
 
 			class << self
 				prepend ::DeviseMongoidMultiEmail::EmailDelegator::ClassOverrideMethods
 			end
 
+			def send_devise_notification(notification, *args)
+				if new_record? || changed?
+					pending_notifications << [notification, args]
+				else
+					devise_mailer.send(notification, self.send(resource_relation), *args).deliver
+				end
+			end
+
 		end
 
 		module ClassOverrideMethods
+
 			def send_confirmation_instructions(attributes={})
-	      confirmable = find_by_unconfirmed_email_with_errors(attributes) if reconfirmable
-	      unless confirmable.try(:persisted?)
-	        confirmable = find_or_initialize_with_errors(confirmation_keys, attributes, :not_found)
-	      end
-	      confirmable.resend_confirmation_instructions if confirmable.persisted?
+	      confirmable = self.where(unconfirmed_email: attributes[:to]).first
+	      confirmable.send_confirmation_instructions if confirmable && confirmable.persisted?
 	      confirmable
 	    end
+
 		end
 
 	end

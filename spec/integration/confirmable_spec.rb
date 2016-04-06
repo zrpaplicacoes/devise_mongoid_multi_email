@@ -40,8 +40,9 @@ describe 'Confirmable', type: :feature do
 		it 'sends an email for each email entry of the user' do
 			user = User.create(email: "test@test.com", password: "zrp@12345")
 			user.emails << create_list(:email, 3, :secondary, user: user)
-			user.save
 			expect(deliveries_size).to eq 4
+			user.emails << create_list(:email, 2, :secondary, user: user)
+			expect(deliveries_size).to eq 6
 		end
 
 	end
