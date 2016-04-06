@@ -5,13 +5,6 @@ describe 'Devise::Login helper methods' do
 
 		context 'public instance helper methods' do
 
-			it 'includes a method to see if the primary email changed' do
-				expect(user.respond_to? :email_changed?).to be_truthy
-				expect(user.email_changed?).to be_falsy
-				user.emails << UserEmail.new
-				expect(user.email_changed?).to be_truthy
-			end
-
 			context "#email" do
 				it 'responds to the method' do
 					expect(user.respond_to? :email).to be_truthy

@@ -18,7 +18,6 @@ module DeviseMongoidMultiEmail
 	  	else
 	  		false
 	  	end
-
 	  end
 
     def confirmed?
@@ -37,10 +36,6 @@ module DeviseMongoidMultiEmail
       elsif email.blank? && record
         record.destroy
       end
-    end
-
-    def emails()
-    	super
     end
 
     def emails=(emails)

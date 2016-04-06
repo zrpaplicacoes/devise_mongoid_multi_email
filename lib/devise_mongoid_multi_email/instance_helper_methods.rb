@@ -14,12 +14,8 @@ module DeviseMongoidMultiEmail
       emails.each { |record| record.confirm }
     end
 
-    def email_changed?
-      first_email_record.present? && first_email_record.changed?
-    end
-
     def emails_changed?
-      emails.present? && ( emails.map { |email| email.changed? || email.new_record? }.any? )
+      valid_emails.present? && (valid_emails.map { |e| e.changed? || e.new_record? }.any? )
     end
 
     def primary_email
@@ -47,7 +43,7 @@ module DeviseMongoidMultiEmail
     end
 
     def has_primary_email?
-      first_email_record.present? && first_email_record.primary?
+      primary_email.present?
     end
 
     def resource_class

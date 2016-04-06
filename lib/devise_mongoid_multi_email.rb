@@ -14,7 +14,16 @@ module DeviseMongoidMultiEmail
 		extend  ClassHelperMethods
 		prepend InstanceOverrideMethods
 
-		has_many :emails, class_name: "#{self.to_s.demodulize}Email"
+		has_many :emails, class_name: "#{self.to_s.demodulize}Email" do
+			def << (records)
+				result = super(records)
+				result.each do |record|
+					next if record.confirmation_sent_at?
+					record.send_confirmation_instructions
+				end
+				result
+			end
+		end
 
 		# Includes Email Delegator module in email_class
 		email_class.send :include, EmailDelegator
@@ -27,6 +36,7 @@ module DeviseMongoidMultiEmail
 		delegate :skip_confirmation!,
 						 :skip_confirmation_notification!,
 						 :skip_reconfirmation!,
+						 :send_confirmation_instructions,
 						 :confirmation_required?,
 						 :confirmation_token,
 						 :confirmation_token=,
