@@ -1,6 +1,5 @@
 module DeviseMongoidMultiEmail
 	module ClassOverrideMethods
-
 		def find_first_by_auth_conditions(tainted_conditions, opts={})
 		  conditions =  tainted_conditions.dup
 		  if email = conditions.delete(:email)
@@ -28,9 +27,17 @@ module DeviseMongoidMultiEmail
 		  recoverable
 		end
 
-		def find_or_initialize_with_errors_for_reset(required_attributes, attributes, error=:not_found_or_unconfirmed)
+		def find_or_initialize_with_errors_for_reset(required_attributes, attributes, error=:not_found_or_unconfirmed, &block)
+			confirmable_record = nil
+			if required_attributes.include? :email
+				confirmable_record ||= email_class.unscoped.where(email: attributes[:email]).first
+			else
+				confirmable_record = block.call
+			end
+
 			record = find_or_initialize_with_errors(required_attributes, attributes, error)
-			if record && email_class.unscoped.where(email: attributes[:email]).present?
+
+			if record && is_confirmed_association_record?(confirmable_record)
 				record
 			else
 				record = new
@@ -42,6 +49,12 @@ module DeviseMongoidMultiEmail
 				record
 			end
 
+		end
+
+		private
+
+		def is_confirmed_association_record? confirmable_record
+			confirmable_record.present? && (confirmable_record.respond_to? :confirmed?) && confirmable_record.confirmed?
 		end
 
 	end
