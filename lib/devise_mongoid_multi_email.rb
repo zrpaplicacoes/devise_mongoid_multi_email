@@ -17,6 +17,9 @@ module DeviseMongoidMultiEmail
 		# Includes Email Delegator module in email_class
 		email_class.send :include, EmailDelegator
 
+		# Field used to store email information
+	  field :email, type: String, default: ""
+
 		# Delegates methods to the primary email record
 		delegate :skip_confirmation!,
 						 :skip_confirmation_notification!,
