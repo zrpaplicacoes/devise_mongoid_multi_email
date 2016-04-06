@@ -1,8 +1,0 @@
-en:
-  mongoid:
-    errors:
-      models:
-        user:
-          attributes:
-            email:
-              not_found_or_unconfirmed: "Email not found or unconfirmed"
