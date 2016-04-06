@@ -30,7 +30,7 @@ module DeviseMongoidMultiEmail
 
 		def find_or_initialize_with_errors_for_reset(required_attributes, attributes, error=:not_found_or_unconfirmed)
 			record = find_or_initialize_with_errors(required_attributes, attributes, error)
-			if record && record.confirmed? && record.account_active?
+			if record && email_class.unscoped.where(email: attributes[:email]).present?
 				record
 			else
 				record = new
@@ -39,9 +39,9 @@ module DeviseMongoidMultiEmail
 					record.send("#{key}=", value)
 					record.errors.add(key, value.present? ? error : :blank)
 				end
-
 				record
 			end
+
 		end
 
 	end

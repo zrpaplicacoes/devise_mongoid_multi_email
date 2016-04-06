@@ -65,7 +65,7 @@ describe 'Recoverable', type: :feature do
       fill_in 'Email', with: mail_to
     end
 
-    context 'when the primary email is confirmed' do
+    context 'when the secondary email is confirmed' do
       before :each do
         secondary_email.confirm
         expect(secondary_email.confirmed?).to be_truthy
