@@ -12,7 +12,6 @@
 		<%- flash.keys.each do |k| %>
 		  <div class="cpy-error"> <%= flash[k] %> </div>
 		<% end %>
-    <%= devise_error_messages! %>
 
     <%= yield %>
   </body>

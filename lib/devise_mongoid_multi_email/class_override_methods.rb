@@ -23,10 +23,27 @@ module DeviseMongoidMultiEmail
 		end
 
 		def send_reset_password_instructions(attributes={})
-		  recoverable = find_or_initialize_with_errors(reset_password_keys, attributes, :not_found_or_unconfirmed)
+		  recoverable = find_or_initialize_with_errors_for_reset(reset_password_keys, attributes, :not_found_or_unconfirmed)
 		  recoverable.send_reset_password_instructions(attributes) if recoverable.persisted?
 		  recoverable
 		end
+
+		def find_or_initialize_with_errors_for_reset(required_attributes, attributes, error=:not_found_or_unconfirmed)
+			record = find_or_initialize_with_errors(required_attributes, attributes, error)
+			if record && record.confirmed? && record.account_active?
+				record
+			else
+				record = new
+				required_attributes.each do |key|
+					value = attributes[key]
+					record.send("#{key}=", value)
+					record.errors.add(key, value.present? ? error : :blank)
+				end
+
+				record
+			end
+		end
+
 	end
 
 end

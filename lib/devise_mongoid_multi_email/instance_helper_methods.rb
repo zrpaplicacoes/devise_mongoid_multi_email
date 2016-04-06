@@ -66,9 +66,15 @@ module DeviseMongoidMultiEmail
     private
 
     def create_email email, opts
-      record = self.class.email_class.new({ unconfirmed_email: email, user: self }.merge(opts))
+      record = self.class.email_class.new({ unconfirmed_email: email }.merge(opts))
       self.emails << record
-      record.save
+
+      if persisted?
+        record.save
+      else
+        record.save && save
+      end
+
     end
 
   end

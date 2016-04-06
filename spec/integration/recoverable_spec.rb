@@ -62,7 +62,6 @@ describe 'Recoverable', type: :feature do
     let(:secondary_email) { user.secondary_emails[0] }
     let(:mail_to) { secondary_email.email_with_indiferent_access }
     before :each do
-      byebug
       fill_in 'Email', with: mail_to
     end
 
