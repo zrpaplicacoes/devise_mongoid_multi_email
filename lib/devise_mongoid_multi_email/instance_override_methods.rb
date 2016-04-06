@@ -16,7 +16,7 @@ module DeviseMongoidMultiEmail
 
     def confirmed?
       return false unless emails.any?
-      primary_email ? primary_email.confirmed? : false
+      primary_email.present? ? primary_email.confirmed? : false
     end
 
 	end

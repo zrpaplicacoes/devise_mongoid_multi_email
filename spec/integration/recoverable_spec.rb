@@ -65,9 +65,11 @@ describe 'Recoverable', type: :feature do
       fill_in 'Email', with: mail_to
     end
 
-    context 'when the secondary email is confirmed' do
+    context 'when the secondary email is confirmed and the primary email is confirmed' do
       before :each do
+        user.primary_email.confirm
         secondary_email.confirm
+        expect(user.primary_email.confirmed?).to be_truthy
         expect(secondary_email.confirmed?).to be_truthy
       end
 
@@ -85,6 +87,27 @@ describe 'Recoverable', type: :feature do
         expect(email.from).to match_array [Devise.mailer_sender]
         expect(email.to).to match_array [mail_to]
       end
+    end
+
+    context 'when the secondary email is confirmed and the primary email is not confirmed' do
+      before :each do
+        secondary_email.confirm
+        expect(user.primary_email.confirmed?).to be_falsy
+        expect(secondary_email.confirmed?).to be_truthy
+      end
+
+      it 'shows an error message of unconfirmed email' do
+        click_reset_password_instructions_button
+        expect(current_path).to eq '/users/password'
+        expect(page).to have_content 'Email not found or unconfirmed'
+      end
+
+      it 'does not send any emails' do
+        ActionMailer::Base.deliveries = []
+        click_reset_password_instructions_button
+        expect(ActionMailer::Base.deliveries.size).to eq 0
+      end
+
     end
 
     context 'when not confirmed' do

@@ -28,16 +28,15 @@ module DeviseMongoidMultiEmail
 		end
 
 		def find_or_initialize_with_errors_for_reset(required_attributes, attributes, error=:not_found_or_unconfirmed, &block)
-			confirmable_record = nil
 			if required_attributes.include? :email
 				confirmable_record ||= email_class.unscoped.where(email: attributes[:email]).first
 			else
-				confirmable_record = block.call
+				confirmable_record ||= block.call
 			end
 
 			record = find_or_initialize_with_errors(required_attributes, attributes, error)
 
-			if record && is_confirmed_association_record?(confirmable_record)
+			if record && record.confirmed? && is_confirmed_association_record?(confirmable_record)
 				record
 			else
 				record = new
