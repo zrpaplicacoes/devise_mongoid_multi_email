@@ -9,5 +9,6 @@ RSpec.configure do |config|
 
   # Helpers
   config.include RSpec::Support::UserForm, type: :feature
+  config.include RSpec::Support::EmailQueue
 end
 

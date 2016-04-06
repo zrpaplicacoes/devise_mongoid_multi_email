@@ -9,9 +9,14 @@ module DeviseMongoidMultiEmail
 		end
 
 	  def send_reset_password_instructions params={}
-	    token = set_reset_password_token
-	    send_devise_notification(:reset_password_instructions, token, { to: params[:email] } )
-	    token
+	  	if confirmed? && emails.where(email: params[:email]).first.confirmed?
+		    token = set_reset_password_token
+		    send_devise_notification(:reset_password_instructions, token, { to: params[:email] } )
+		    token
+	  	else
+	  		false
+	  	end
+
 	  end
 
     def confirmed?

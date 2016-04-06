@@ -7,7 +7,7 @@ describe 'Recoverable', type: :feature do
   end
 
   after :each do
-    ActionMailer::Base.deliveries = []
+    reset_deliveries
   end
 
   context 'with primary email' do
@@ -30,9 +30,9 @@ describe 'Recoverable', type: :feature do
       end
 
       it 'sends an email to the passed email' do
-        ActionMailer::Base.deliveries = []
+        reset_deliveries
         click_reset_password_instructions_button
-        email = ActionMailer::Base.deliveries[0]
+        email = deliveries[0]
         expect(email.subject).to eq 'Reset password instructions'
         expect(email.from).to match_array [Devise.mailer_sender]
         expect(email.to).to match_array [mail_to]
@@ -51,9 +51,9 @@ describe 'Recoverable', type: :feature do
       end
 
       it 'does not send any emails' do
-        ActionMailer::Base.deliveries = []
+        reset_deliveries
         click_reset_password_instructions_button
-        expect(ActionMailer::Base.deliveries.size).to eq 0
+        expect(deliveries_size).to eq 0
       end
     end
   end
@@ -80,9 +80,9 @@ describe 'Recoverable', type: :feature do
       end
 
       it 'sends an email to the passed email' do
-        ActionMailer::Base.deliveries = []
+        reset_deliveries
         click_reset_password_instructions_button
-        email = ActionMailer::Base.deliveries[0]
+        email = deliveries[0]
         expect(email.subject).to eq 'Reset password instructions'
         expect(email.from).to match_array [Devise.mailer_sender]
         expect(email.to).to match_array [mail_to]
@@ -103,9 +103,9 @@ describe 'Recoverable', type: :feature do
       end
 
       it 'does not send any emails' do
-        ActionMailer::Base.deliveries = []
+        reset_deliveries
         click_reset_password_instructions_button
-        expect(ActionMailer::Base.deliveries.size).to eq 0
+        expect(deliveries_size).to eq 0
       end
 
     end
@@ -122,13 +122,12 @@ describe 'Recoverable', type: :feature do
       end
 
       it 'does not send any emails' do
-        ActionMailer::Base.deliveries = []
+        reset_deliveries
         click_reset_password_instructions_button
-        expect(ActionMailer::Base.deliveries.size).to eq 0
+        expect(deliveries_size).to eq 0
       end
     end
   end
-
 
   context 'with non-existing email' do
     before :each do

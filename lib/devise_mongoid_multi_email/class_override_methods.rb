@@ -23,6 +23,7 @@ module DeviseMongoidMultiEmail
 
 		def send_reset_password_instructions(attributes={})
 		  recoverable = find_or_initialize_with_errors_for_reset(reset_password_keys, attributes, :not_found_or_unconfirmed)
+		  byebug
 		  recoverable.send_reset_password_instructions(attributes) if recoverable.persisted?
 		  recoverable
 		end
