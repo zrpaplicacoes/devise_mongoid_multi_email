@@ -8,6 +8,10 @@ module RSpec
 				fill_in 'Password', with: options[:password]
 			end
 
+			def click_reset_password_instructions_button
+				click_button 'Send me reset password instructions'
+			end
+
 		end
 
 	end
