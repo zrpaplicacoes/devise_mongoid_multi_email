@@ -6,7 +6,7 @@ module DeviseMongoidMultiEmail
 		end
 
 		def get_devise_email_association
-			@association || :emails
+			@association || email_class_association
 		end
 
 		def reset_devise_email_association
@@ -14,9 +14,23 @@ module DeviseMongoidMultiEmail
 		end
 
 		def email_class
-			association = reflect_on_association(get_devise_email_association)
-			association.class_name.demodulize.constantize
+			"#{self.to_s.demodulize}Email".constantize
 		end
+
+		def resource_association
+			self.to_s.demodulize.underscore.to_sym
+		end
+
+		def email_class_association
+			:emails
+		end
+
+		private
+
+		def retrieve_email_association
+			reflect_on_association(get_devise_email_association)
+		end
+
 	end
 
 end

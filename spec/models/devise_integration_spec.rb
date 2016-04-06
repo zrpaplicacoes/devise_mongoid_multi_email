@@ -29,6 +29,12 @@ describe 'Devise integration' do
   		expect(user.confirmed?).to be_truthy
   	end
 
+    it 'returns true for #emails_changed? if user has added or removed emails' do
+      expect(user.emails_changed?).to be_falsy
+      user.emails << create(:email, :secondary, user: user)
+      expect(user.emails_changed?).to be_truthy
+    end
+
   	it 'returns false for #confirmed? if user has no confirmed emails' do
   		expect(user.confirmed?).to be_falsy
   	end

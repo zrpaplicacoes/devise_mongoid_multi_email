@@ -8,7 +8,7 @@ describe 'Devise::Login helper methods' do
 			it 'includes a method to see if the primary email changed' do
 				expect(user.respond_to? :email_changed?).to be_truthy
 				expect(user.email_changed?).to be_falsy
-				user.emails << Email.new
+				user.emails << UserEmail.new
 				expect(user.email_changed?).to be_truthy
 			end
 
@@ -104,7 +104,7 @@ describe 'Devise::Login helper methods' do
 			end
 
 			it 'returns the email class if I call #email_class method on class' do
-				expect(User.email_class).to eq Email
+				expect(User.email_class).to eq UserEmail
 			end
 
 			context "#find_first_by_auth_conditions" do
@@ -145,12 +145,12 @@ describe 'Devise::Login helper methods' do
 	end
 
 	context 'Email model' do
-		let(:email) { Email.new }
+		let(:email) { UserEmail.new }
 
 		context 'public instance helper methods' do
 			it 'includes a method to retrieve the user email if the email is on the unconfirmed field or is already confirmed' do
-				first_email = Email.new(unconfirmed_email: "test@test.com")
-				second_email = Email.new(email: "test@test.com")
+				first_email = UserEmail.new(unconfirmed_email: "test@test.com")
+				second_email = UserEmail.new(email: "test@test.com")
 				expect(first_email.email_with_indiferent_access).to eq second_email.email_with_indiferent_access
 			end
 		end

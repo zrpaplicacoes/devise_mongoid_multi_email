@@ -1,9 +1,7 @@
 class User < ApplicationRecord
 
-  # relations
-  has_many :emails
-
   include DeviseMongoidMultiEmail
+
 
   # Dummy Field
   field :name, type: String

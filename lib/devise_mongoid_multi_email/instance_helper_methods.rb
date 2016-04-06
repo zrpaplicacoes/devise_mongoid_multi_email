@@ -14,21 +14,12 @@ module DeviseMongoidMultiEmail
       emails.each { |record| record.confirm }
     end
 
-    def email
-      primary_email.try(:email) || primary_email.try(:unconfirmed_email) || ""
-    end
-
-    def email=(email)
-      record = primary_email
-      if email
-        create_email email, primary: !has_primary_email?
-      elsif email.blank? && record
-        record.destroy
-      end
-    end
-
     def email_changed?
       first_email_record.present? && first_email_record.changed?
+    end
+
+    def emails_changed?
+      emails.present? && ( emails.map { |email| email.changed? || email.new_record? }.any? )
     end
 
     def primary_email

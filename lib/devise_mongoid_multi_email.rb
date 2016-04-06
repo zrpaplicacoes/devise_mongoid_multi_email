@@ -14,8 +14,11 @@ module DeviseMongoidMultiEmail
 		extend  ClassHelperMethods
 		prepend InstanceOverrideMethods
 
+		has_many :emails, class_name: "#{self.to_s.demodulize}Email"
+
 		# Includes Email Delegator module in email_class
 		email_class.send :include, EmailDelegator
+		email_class.send :belongs_to, resource_association
 
 		# Field used to store email information
 	  field :email, type: String, default: ""

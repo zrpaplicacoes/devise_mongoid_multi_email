@@ -1,5 +1,6 @@
 module DeviseMongoidMultiEmail
 	module InstanceOverrideMethods
+
 		def active_for_authentication?
 			account_active? && super
 		end
@@ -23,6 +24,27 @@ module DeviseMongoidMultiEmail
     def confirmed?
       return false unless emails.any?
       primary_email.present? ? primary_email.confirmed? : false
+    end
+
+    def email
+      primary_email.try(:email) || primary_email.try(:unconfirmed_email) || ""
+    end
+
+    def email=(email)
+      record = primary_email
+      if email
+        create_email email, primary: !has_primary_email?
+      elsif email.blank? && record
+        record.destroy
+      end
+    end
+
+    def emails()
+    	super
+    end
+
+    def emails=(emails)
+    	byebug
     end
 
 	end
