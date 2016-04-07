@@ -59,13 +59,85 @@ describe 'Confirmable', type: :feature do
 				visit user_confirmation_url(confirmation_token: @token)
 			end
 
-			it 'does something' do
-				byebug
+			it 'redirects the user back to the sign in page' do
+				expect(current_path).to eq '/users/sign_in'
+			end
+
+			it 'shows a succesfully confirmed message' do
+				expect(page).to have_content "Your email address has been successfully confirmed."
+			end
+
+			it 'confirms the passed email' do
+				primary_email.reload
+				expect(primary_email.confirmed?).to be_truthy
+			end
+
+			it 'does not confirm any other email' do
+				user.reload
+				user.secondary_emails.each do |record|
+					expect(record.confirmed?).to be_falsy
+				end
+			end
+
+			it 'makes the user account active and confirmed' do
+				user.reload
+				expect(user.confirmed?).to be_truthy
+				expect(user.account_active?).to be_truthy
 			end
 		end
 
 		context 'if the email is a secondary email' do
+			before :each do
+				expect(secondary_email.confirmed?).to be_falsy
+				expect(secondary_email.unconfirmed_email.blank?).to be_falsy
+				@token = secondary_email.send_confirmation_instructions
+				visit user_confirmation_url(confirmation_token: @token)
+			end
 
+			it 'redirects the user back to the sign in page' do
+				expect(current_path).to eq '/users/sign_in'
+			end
+
+			it 'shows a succesfully confirmed message' do
+				expect(page).to have_content "Your email address has been successfully confirmed."
+			end
+
+			it 'confirms the passed email' do
+				secondary_email.reload
+				expect(secondary_email.confirmed?).to be_truthy
+			end
+
+			it 'does not confirm any other email' do
+				user.reload
+				(user.emails - Array(secondary_email)).each do |record|
+					expect(record.confirmed?).to be_falsy
+				end
+			end
+
+			it 'makes the user account active but not confirmed' do
+				user.reload
+				expect(user.confirmed?).to be_falsy
+				expect(user.account_active?).to be_truthy
+			end
+		end
+
+		context 'if the confirmation token is invalid' do
+			before :each do
+				visit user_confirmation_url(confirmation_token: "#{SecureRandom.base64}")
+			end
+
+			it 'renders the page again' do
+				expect(current_path).to eq '/users/confirmation'
+			end
+
+			it 'shows an error message' do
+				expect(page).to have_content "Confirmation token is invalid"
+			end
+
+			it 'does not create an email' do
+				current_email_count = UserEmail.count
+				expect(current_email_count).to eq 0
+			end
 		end
 
 	end
