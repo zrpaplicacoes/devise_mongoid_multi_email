@@ -42,5 +42,27 @@ module DeviseMongoidMultiEmail
     	byebug
     end
 
+    def pending_reconfirmation?
+    	emails.present? && emails.map(&:pending_reconfirmation?).any?
+    end
+
+    def unconfirmed_email
+    	if has_primary_email?
+    		primary_email.unconfirmed_email
+    	else
+    		""
+    	end
+
+    end
+
+    def unconfirmed_email=(email)
+    	if has_primary_email?
+    		primary_email.update(unconfirmed_email: email)
+    	else
+    		""
+    	end
+
+    end
+
 	end
 end

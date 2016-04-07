@@ -36,7 +36,6 @@ module DeviseMongoidMultiEmail
 		delegate :skip_confirmation!,
 						 :skip_confirmation_notification!,
 						 :skip_reconfirmation!,
-						 :send_confirmation_instructions,
 						 :confirmation_required?,
 						 :confirmation_token,
 						 :confirmation_token=,
@@ -44,7 +43,8 @@ module DeviseMongoidMultiEmail
 						 :confirmation_sent_at=,
 						 :confirm, :unconfirmed_email,
 						 :reconfirmation_required?,
-						 :pending_reconfirmation?, :email_was,
+						 :email_was, :unconfirmed_email,
+						 :unconfirmed_email=,
 						 to: :primary_email, allow_nil: false
 
 		# Overrides Devise Behavior using a Eigenclass to position these

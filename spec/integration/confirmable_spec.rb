@@ -142,5 +142,72 @@ describe 'Confirmable', type: :feature do
 
 	end
 
+	context 'when I try to request a new confirmation token' do
+		let(:user) { create(:user, :with_secondary_emails, amount_of_secondary_emails: 2)}
+		let(:primary_email) { user.primary_email }
+		let(:secondary_email) { user.secondary_emails.first }
+
+		before :each do
+			visit new_user_confirmation_path
+		end
+
+		context 'when the email is a primary email' do
+			before :each do
+				fill_in 'Email', with: primary_email.email_with_indiferent_access
+				reset_deliveries
+				click_button 'Resend confirmation instructions'
+			end
+
+			it 'shows a successfull sent message' do
+				expect(page).to have_content 'You will receive an email with instructions for how to confirm your email address in a few minutes.'
+			end
+
+			it 'redirects the user to the sign in page' do
+				expect(current_path).to eq '/users/sign_in'
+			end
+
+			it 'resends the confirmation email' do
+				expect(deliveries_size).to eq 1
+				expect(deliveries[0].subject).to eq 'Confirmation instructions'
+				expect(deliveries[0].to).to eq primary_email.email_with_indiferent_access
+			end
+
+		end
+
+		context 'when the email is a secondary email' do
+			before :each do
+				reset_deliveries
+				fill_in 'Email', with: secondary_email.email_with_indiferent_access
+				click_button 'Resend confirmation instructions'
+			end
+
+			it 'shows a successfull sent message' do
+				expect(page).to have_content 'You will receive an email with instructions for how to confirm your email address in a few minutes.'
+			end
+
+			it 'redirects the user to the sign in page' do
+				expect(current_path).to eq '/users/sign_in'
+			end
+
+			it 'resends the confirmation email' do
+				expect(deliveries_size).to eq 1
+				expect(deliveries[0].subject).to eq 'Confirmation instructions'
+				expect(deliveries[0].to).to eq secondary_email.email_with_indiferent_access
+			end
+		end
+
+		context 'when the email does not exist' do
+			before :each do
+				fill_in 'Email', with: "invalid_email@test.com"
+				click_button 'Resend confirmation instructions'
+			end
+
+			it 'shows an error message' do
+				expect(page).to have_content 'invalid token'
+			end
+		end
+
+	end
+
 
 end

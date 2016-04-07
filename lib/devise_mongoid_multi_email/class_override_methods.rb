@@ -61,6 +61,10 @@ module DeviseMongoidMultiEmail
 
 		end
 
+		def send_confirmation_instructions resource_params
+			email_class.send_confirmation_instructions(resource_params)
+		end
+
 		def confirm_by_token confirmation_token
 			confirmable = find_first_by_auth_conditions(confirmation_token: confirmation_token)
 			if confirmable

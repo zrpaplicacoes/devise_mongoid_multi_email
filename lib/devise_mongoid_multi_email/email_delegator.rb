@@ -46,8 +46,12 @@ module DeviseMongoidMultiEmail
 		module ClassOverrideMethods
 
 			def send_confirmation_instructions(attributes={})
-	      confirmable = self.where(unconfirmed_email: attributes[:to]).first
-	      confirmable.send_confirmation_instructions if confirmable && confirmable.persisted?
+	      confirmable = self.where(unconfirmed_email: attributes[:to] || attributes[:email]).first
+
+	      return find_or_initialize_with_error_by(:unconfirmed_email, attributes[:to] || attributes[:email], :not_found) unless confirmable
+
+	      confirmable.send_confirmation_instructions if confirmable.persisted?
+
 	      confirmable
 	    end
 
