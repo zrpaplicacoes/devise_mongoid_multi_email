@@ -28,6 +28,7 @@ module DeviseMongoidMultiEmail
 
 				opts = { to: unconfirmed_email }
         send_devise_notification(:confirmation_instructions, @raw_confirmation_token, opts)
+        @raw_confirmation_token
 			end
 
 			class << self
@@ -35,9 +36,7 @@ module DeviseMongoidMultiEmail
 			end
 
 			def send_devise_notification(notification, *args)
-				if new_record? || changed?
-					pending_notifications << [notification, args]
-				else
+				unless new_record? || changed?
 					devise_mailer.send(notification, self.send(resource_relation), *args).deliver
 				end
 			end

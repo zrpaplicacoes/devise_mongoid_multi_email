@@ -18,8 +18,7 @@ module DeviseMongoidMultiEmail
 			def << (records)
 				result = super(records)
 				excluded = result - Array(records)
-				result = result - excluded
-				result.each do |record|
+				(result - excluded).each do |record|
 					record.send_confirmation_instructions unless record.primary?
 				end
 				result
