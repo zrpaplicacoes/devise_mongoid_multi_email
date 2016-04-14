@@ -1,0 +1,188 @@
+describe 'Validatable' do
+
+	context 'Email class' do
+		let(:error_messages) { OpenStruct.new({
+				blank: "can't be blank",
+				invalid_format: "is invalid",
+				already_taken: "is already taken"
+			})
+		}
+
+		it 'includes the validation module inside the email class' do
+			expect(UserEmail.included_modules.include?(::DeviseMongoidMultiEmail::EmailValidators)).to be_truthy
+		end
+
+		context 'if the email format is invalid' do
+			let(:email) { UserEmail.new(unconfirmed_email: "invalid_email") }
+
+			it 'returns false to #valid?' do
+				expect(email.valid?).to be_falsy
+			end
+
+			it 'adds an error message of invalid format' do
+				email.valid?
+				expect(email.errors['email']).to match_array [error_messages.invalid_format]
+			end
+
+		end
+
+		context 'if the email is blank' do
+			let(:email) { UserEmail.new(unconfirmed_email: "") }
+
+			it 'returns false to #valid?' do
+				expect(email.valid?).to be_falsy
+			end
+
+			it 'adds an error message of cant be blank' do
+				email.valid?
+				expect(email.errors['email']).to match_array [error_messages.blank]
+			end
+
+		end
+
+		context 'if the email already exists and is confirmed' do
+			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com") }
+			let(:identical_email) { UserEmail.new(unconfirmed_email: "test@test.com") }
+			let(:user) { create(:user) }
+			let(:other_users) { create_list(:user, 2) }
+
+			before :each do
+				user.emails << email
+
+				email.reload
+
+				expect(email.persisted?).to be_truthy
+				expect(email.user).to eq user
+				user.confirm_all # confirms all user emails, including the appended one
+				user.emails.each do |record|
+					expect(record.confirmed?).to be_truthy
+				end
+			end
+
+			it 'does not allow any user to create it' do
+				another_user = other_users.first
+
+				expect {
+					another_user.emails << identical_email
+				}.to raise_error Mongoid::Errors::Validations
+
+			end
+
+			it 'returns false to #valid?' do
+				new_email = UserEmail.new(unconfirmed_email: "test@test.com")
+				expect(new_email.valid?).to be_falsy
+			end
+
+			it 'adds an error message of already taken' do
+				new_email = UserEmail.new(unconfirmed_email: "test@test.com")
+				new_email.valid?
+				expect(new_email.errors['email']).to match_array [error_messages.already_taken]
+			end
+
+		end
+
+		context 'if the email already exists and is unconfirmed' do
+			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com") }
+			let(:identical_email) { UserEmail.new(unconfirmed_email: "test@test.com") }
+			let(:user) { create(:user) }
+			let(:other_users) { create_list(:user, 2) }
+
+			before :each do
+				user.emails << email
+
+				email.reload
+
+				expect(email.persisted?).to be_truthy
+				expect(email.user).to eq user
+				expect(email.confirmed?).to be_falsy
+			end
+
+			it 'allows other users to create this email' do
+				another_user = other_users.first
+				expect { another_user.emails << identical_email }.to_not raise_error
+
+				another_user.emails << identical_email
+
+				another_user.reload
+				identical_email.reload
+
+				expect(another_user.emails.where(unconfirmed_email: email.email_with_indiferent_access).first).to eq identical_email
+				expect(identical_email.persisted?).to be_truthy
+				expect(identical_email.confirmed?).to be_falsy
+
+				identical_emails = UserEmail.where(unconfirmed_email: identical_email.email_with_indiferent_access).to_a
+
+				expect(identical_emails.size).to eq 2
+				expect(identical_emails.map(&:user)).to match_array [ user, another_user ]
+			end
+
+			it 'does not allow the same user to add this email to his emails' do
+				expect(user.emails.count).to eq 2
+				user.emails << identical_email
+				user.reload
+				expect(user.emails.count).to eq 2
+			end
+
+			it 'is removed from all users when an user confirms it' do
+				expect(user.emails.count).to eq 2
+
+				another_user = other_users.first
+				expect { another_user.emails << email }.to_not raise_error
+				email.confirm
+
+				another_user.reload
+				email.reload
+				user.reload
+
+				expect(another_user.emails.last.confirmed?).to be_truthy
+				expect(user.emails.count).to eq 1
+
+			end
+
+			it 'is not confirmed if persisted' do
+				another_user = other_users.first
+				expect { another_user.emails << email }.to_not raise_error
+
+				email.reload
+
+				expect(email.confirmed?).to be_falsy
+			end
+
+		end
+
+		context 'if the email does not exist' do
+			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com") }
+
+			it 'returns an error if the email does not belong to an user' do
+				expect { email.save! }.to raise_error Mongoid::Errors::Validations
+			end
+
+			it 'is persisted if the email belongs to an user' do
+				user = create(:user)
+				user.emails << email
+				email.reload
+				expect(email.user).to eq user
+				expect(email.persisted?).to be_truthy
+			end
+
+			it 'is not persisted if the email does not have an user' do
+				email.save
+
+				email.reload
+
+				expect(email.persisted?).to be_falsy
+			end
+
+			it 'is not confirmed if persisted' do
+				user = create(:user)
+				user.emails << email
+				email.reload
+				expect(email.user).to eq user
+				expect(email.confirmed?).to be_falsy
+			end
+
+		end
+
+	end
+
+end

@@ -5,16 +5,16 @@ module DeviseMongoidMultiEmail
 		included do
 			devise :confirmable
 
-			def resource_class
-				resource_class_name.constantize
+			class << self
+				prepend ::DeviseMongoidMultiEmail::EmailDelegator::ClassOverrideMethods
+			end
+
+			def resource
+				self.send(resource_relation)
 			end
 
 			def resource_class_name
 				self.class.to_s.demodulize.gsub("Email", "")
-			end
-
-			def resource_relation
-				resource_class_name.underscore.to_sym
 			end
 
 			def email_with_indiferent_access
@@ -31,19 +31,33 @@ module DeviseMongoidMultiEmail
         @raw_confirmation_token
 			end
 
-			class << self
-				prepend ::DeviseMongoidMultiEmail::EmailDelegator::ClassOverrideMethods
-			end
-
 			def send_devise_notification(notification, *args)
 				unless new_record? || changed?
 					devise_mailer.send(notification, self.send(resource_relation), *args).deliver
 				end
 			end
 
+			extend ::DeviseMongoidMultiEmail::EmailDelegator::Helpers
+			include ::DeviseMongoidMultiEmail::EmailDelegator::Helpers
+			include ::DeviseMongoidMultiEmail::EmailValidators
+
+		end
+
+		module Helpers
+			def resource_class
+				resource_class_name.constantize
+			end
+
+			def resource_relation
+				resource_class_name.underscore.to_sym
+			end
 		end
 
 		module ClassOverrideMethods
+			def resource_class_name
+				self.to_s.demodulize.gsub("Email", "")
+			end
+
 
 			def send_confirmation_instructions(attributes={})
 	      confirmable = self.where(unconfirmed_email: attributes[:to] || attributes[:email]).first
@@ -58,4 +72,7 @@ module DeviseMongoidMultiEmail
 		end
 
 	end
+
+
+
 end

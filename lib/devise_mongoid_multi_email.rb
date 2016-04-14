@@ -8,6 +8,7 @@ module DeviseMongoidMultiEmail
 	autoload :ClassHelperMethods       , 'devise_mongoid_multi_email/class_helper_methods'
 	autoload :ClassOverrideMethods     , 'devise_mongoid_multi_email/class_override_methods'
 	autoload :EmailDelegator           , 'devise_mongoid_multi_email/email_delegator'
+	autoload :EmailValidators          , 'devise_mongoid_multi_email/email_validators'
 
 	included do
 		include InstanceHelperMethods
