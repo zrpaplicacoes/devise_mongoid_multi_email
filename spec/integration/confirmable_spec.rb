@@ -56,6 +56,7 @@ describe 'Confirmable', type: :feature do
 				expect(primary_email.confirmed?).to be_falsy
 				expect(primary_email.unconfirmed_email.blank?).to be_falsy
 				@token = primary_email.send_confirmation_instructions
+				reset_deliveries
 				visit user_confirmation_url(confirmation_token: @token)
 			end
 
@@ -142,7 +143,7 @@ describe 'Confirmable', type: :feature do
 
 	end
 
-	context 'when I try to request a new confirmation token' do
+	context 'when I try to request a new confirmation email' do
 		let(:user) { create(:user, :with_secondary_emails, amount_of_secondary_emails: 2)}
 		let(:primary_email) { user.primary_email }
 		let(:secondary_email) { user.secondary_emails.first }
@@ -150,6 +151,7 @@ describe 'Confirmable', type: :feature do
 		before :each do
 			visit new_user_confirmation_path
 		end
+
 
 		context 'when the email is a primary email' do
 			before :each do
@@ -169,15 +171,15 @@ describe 'Confirmable', type: :feature do
 			it 'resends the confirmation email' do
 				expect(deliveries_size).to eq 1
 				expect(deliveries[0].subject).to eq 'Confirmation instructions'
-				expect(deliveries[0].to).to eq primary_email.email_with_indiferent_access
+				expect(deliveries[0].to).to match_array [primary_email.email_with_indiferent_access]
 			end
 
 		end
 
 		context 'when the email is a secondary email' do
 			before :each do
-				reset_deliveries
 				fill_in 'Email', with: secondary_email.email_with_indiferent_access
+				reset_deliveries
 				click_button 'Resend confirmation instructions'
 			end
 
@@ -192,7 +194,7 @@ describe 'Confirmable', type: :feature do
 			it 'resends the confirmation email' do
 				expect(deliveries_size).to eq 1
 				expect(deliveries[0].subject).to eq 'Confirmation instructions'
-				expect(deliveries[0].to).to eq secondary_email.email_with_indiferent_access
+				expect(deliveries[0].to).to match_array [secondary_email.email_with_indiferent_access]
 			end
 		end
 
@@ -203,7 +205,7 @@ describe 'Confirmable', type: :feature do
 			end
 
 			it 'shows an error message' do
-				expect(page).to have_content 'invalid token'
+				expect(page).to have_content 'Unconfirmed email not found'
 			end
 		end
 

@@ -26,7 +26,7 @@ module DeviseMongoidMultiEmail
 					generate_confirmation_token!
 				end
 
-				opts = { to: unconfirmed_email }
+				opts = { to: email_with_indiferent_access }
         send_devise_notification(:confirmation_instructions, @raw_confirmation_token, opts)
         @raw_confirmation_token
 			end

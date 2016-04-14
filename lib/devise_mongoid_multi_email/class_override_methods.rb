@@ -1,5 +1,6 @@
 module DeviseMongoidMultiEmail
 	module ClassOverrideMethods
+
 		def find_first_by_auth_conditions(tainted_conditions, optional_conditions={})
 		  conditions =  tainted_conditions.dup
 		  if email = conditions.delete(:email)
