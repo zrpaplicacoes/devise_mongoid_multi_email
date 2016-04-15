@@ -24,4 +24,12 @@ describe 'User factory' do
 		expect(UserEmail.count).to eq 0
 	end
 
+	it 'deletes the emails if on the user creation the user itself is not valid' do
+		user = User.create(email: "test@test.com")
+		expect(user.valid?).to be_falsy
+
+		expect(User.count).to eq 0
+		expect(UserEmail.count).to eq 0
+	end
+
 end

@@ -7,6 +7,8 @@ module DeviseMongoidMultiEmail
 
       after_validation :destroy_invalid_emails
 
+      private
+
       def destroy_invalid_emails
         emails.map do |record|
           unless record.valid?
@@ -14,8 +16,6 @@ module DeviseMongoidMultiEmail
             record.delete
           end
         end
-
-        true
       end
 
     end
