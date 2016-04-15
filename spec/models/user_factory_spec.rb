@@ -12,4 +12,16 @@ describe 'User factory' do
 	it 'has only a single email record if no params are passed to the factory' do
 		expect(create(:user).emails.count).to eq 1
 	end
+
+	it 'deletes the emails if the user is deleted' do
+		user = create(:user, :with_secondary_emails, :amount_of_secondary_emails => 5)
+		expect(User.count).to eq 1
+		expect(UserEmail.count).to eq 6
+
+		user.delete
+
+		expect(User.count).to eq 0
+		expect(UserEmail.count).to eq 0
+	end
+
 end

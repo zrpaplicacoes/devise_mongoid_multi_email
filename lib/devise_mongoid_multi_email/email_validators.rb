@@ -30,7 +30,14 @@ module DeviseMongoidMultiEmail
 
       # After callbacks
       after_validation :propagates_errors_to_email_attribute
+      after_validation :propagates_errors_to_email_attribute_of_resource
       after_validation :delete_identical_emails_if_confirmed
+
+      private
+
+      def email_error_messages
+        (errors['email'] | errors['unconfirmed_email']).uniq
+      end
 
       def email_or_unconfirmed_email_present?
         errors.add(:email, :blank) if email_with_indiferent_access.blank?
@@ -52,7 +59,7 @@ module DeviseMongoidMultiEmail
       end
 
       def propagates_errors_to_email_attribute
-        messages = (errors['email'] | errors['unconfirmed_email']).uniq
+        messages = email_error_messages
 
         errors['email'].clear
         errors['unconfirmed_email'].clear
@@ -62,17 +69,20 @@ module DeviseMongoidMultiEmail
           errors.add(:email, message)
         end
 
-        true
+      end
+
+      def propagates_errors_to_email_attribute_of_resource
+        messages = email_error_messages
+        messages.each do |message|
+          resource.errors.add(:email, message) if resource
+        end
       end
 
       def delete_identical_emails_if_confirmed
         if confirmed?
           self.class.not_in(:_id => [self.id]).where(:unconfirmed_email => email_with_indiferent_access).delete_all
         end
-
       end
-
-      private
 
       def duplicated_unconfirmed_emails_expect_self
         resource.emails.where(unconfirmed_email: email_with_indiferent_access).to_a.reject { |record| record == self }
