@@ -10,6 +10,7 @@ describe 'Recoverable confirmation', type: :feature do
 			before :each do
 			  primary_email.confirm
 			  expect(primary_email.confirmed?).to be_truthy
+			  expect(primary_email.valid?).to be_truthy
 
 			  reset_deliveries
 

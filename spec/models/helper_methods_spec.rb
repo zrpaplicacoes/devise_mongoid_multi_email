@@ -1,7 +1,7 @@
 describe 'Devise::Login helper methods' do
 
 	context 'User model' do
-		let(:user) { User.new }
+		let(:user) { User.new(password: "dummypass@1234") }
 
 		context 'public instance helper methods' do
 

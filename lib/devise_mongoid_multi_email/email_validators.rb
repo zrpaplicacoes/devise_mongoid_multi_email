@@ -37,12 +37,12 @@ module DeviseMongoidMultiEmail
       end
 
       def has_identical_email_confirmed?
-        errors.add(:email, :taken) unless self.class.where(email: email_with_indiferent_access).size.zero?
+        errors.add(:email, :taken) if duplicated_emails_expect_self.present?
       end
 
       def identical_email_for_the_same_resource?
         if resource
-          if duplicated_emails_expect_self.present?
+          if duplicated_unconfirmed_emails_expect_self.present?
             errors.add(:email, :taken)
             raise Mongoid::Errors::Validations, self
           end
@@ -74,9 +74,14 @@ module DeviseMongoidMultiEmail
 
       private
 
-      def duplicated_emails_expect_self
+      def duplicated_unconfirmed_emails_expect_self
         resource.emails.where(unconfirmed_email: email_with_indiferent_access).to_a.reject { |record| record == self }
       end
+
+      def duplicated_emails_expect_self
+        self.class.not_in(:_id => [self.id]).where(email: email_with_indiferent_access).to_a
+      end
+
 
     end
 

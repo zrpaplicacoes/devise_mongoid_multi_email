@@ -17,7 +17,7 @@ module DeviseMongoidMultiEmail
 		extend  ClassHelperMethods
 		include UserValidators
 
-		has_many :emails, dependent: :destroy, class_name: "#{self.to_s.demodulize}Email" do
+		has_many :emails, dependent: :delete, autosave: false, class_name: "#{self.to_s.demodulize}Email" do
 			def << (records)
 				result = super(records)
 				excluded = result - Array(records)
@@ -45,8 +45,7 @@ module DeviseMongoidMultiEmail
 						 :confirmed_at, :confirmation_sent_at,
 						 :confirmation_sent_at=,
 						 :confirm, :unconfirmed_email,
-						 :reconfirmation_required?,
-						 :email_was, :unconfirmed_email,
+						 :unconfirmed_email,
 						 :unconfirmed_email=,
 						 to: :primary_email, allow_nil: false
 

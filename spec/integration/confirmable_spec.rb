@@ -16,6 +16,9 @@ describe 'Confirmable', type: :feature do
 		it 'sets all the created emails as unconfirmed' do
 			user = User.create(email: "test@test.com", password: "zrp@12345")
 			user.emails << create_list(:email, 3, :secondary, user: user)
+
+			user.reload
+
 			expect(user.emails.count).to eq 4
 			user.emails.each do |email|
 				expect(email.confirmed?).to be_falsy

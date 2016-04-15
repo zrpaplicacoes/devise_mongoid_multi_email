@@ -26,15 +26,17 @@ module DeviseMongoidMultiEmail
   end
 
   def email
-    primary_email.try(:email) || primary_email.try(:unconfirmed_email) || ""
+    primary_email.try(:email) || primary_email.try(:unconfirmed_email) || read_attribute(:email)
   end
 
   def email=(email)
     record = primary_email
     if email
-    create_email email, primary: !has_primary_email?
+      write_attribute(:email, email)
+      create_email email, primary: !has_primary_email?
     elsif email.blank? && record
-    record.destroy
+      write_attribute(:email, "")
+      record.destroy
     end
   end
 
