@@ -15,7 +15,7 @@ module DeviseMongoidMultiEmail
 		extend  ClassHelperMethods
 		prepend InstanceOverrideMethods
 
-		has_many :emails, class_name: "#{self.to_s.demodulize}Email" do
+		has_many :emails, dependent: :destroy, class_name: "#{self.to_s.demodulize}Email" do
 			def << (records)
 				result = super(records)
 				excluded = result - Array(records)

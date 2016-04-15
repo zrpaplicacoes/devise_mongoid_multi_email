@@ -34,7 +34,7 @@ describe 'Devise integration' do
   	end
 
   	it 'confirms all users emails if I call #confirm_all on the user' do
-  		user.emails << create_list(:email, 3, user: user)
+  		user.emails << create_list(:email, 3, :secondary, user: user)
   		expect(user.emails.size).to eq 4 # creation email + 3
 
   		user.emails.each do |record|

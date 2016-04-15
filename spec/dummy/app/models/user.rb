@@ -2,7 +2,6 @@ class User < ApplicationRecord
 
   include DeviseMongoidMultiEmail
 
-
   # Dummy Field
   field :name, type: String
 

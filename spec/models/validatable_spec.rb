@@ -1,12 +1,12 @@
 describe 'Validatable' do
+	let(:error_messages) { OpenStruct.new({
+			blank: "can't be blank",
+			invalid_format: "is invalid",
+			already_taken: "is already taken"
+		})
+	}
 
 	context 'Email class' do
-		let(:error_messages) { OpenStruct.new({
-				blank: "can't be blank",
-				invalid_format: "is invalid",
-				already_taken: "is already taken"
-			})
-		}
 
 		it 'includes the validation module inside the email class' do
 			expect(UserEmail.included_modules.include?(::DeviseMongoidMultiEmail::EmailValidators)).to be_truthy
@@ -183,6 +183,21 @@ describe 'Validatable' do
 
 		end
 
+	end
+
+	context 'Resource class' do
+		let(:user) { create(:user) }
+
+		it 'does not allow multiple primary emails' do
+			expect { create(:email, primary: true, user: user) }.to raise_error Mongoid::Errors::Validations
+			new_primary_email = UserEmail.new(primary: true, unconfirmed_email: "test@test.com", user: user)
+
+			expect(new_primary_email.valid?).to be_falsy
+			expect(new_primary_email.errors['primary']).to match_array [error_messages.already_taken]
+
+			expect { user.emails << new_primary_email }.to raise_error Mongoid::Errors::Validations
+
+		end
 	end
 
 end
