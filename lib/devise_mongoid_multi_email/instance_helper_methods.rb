@@ -14,6 +14,10 @@ module DeviseMongoidMultiEmail
       emails.each { |record| record.confirm }
     end
 
+    def emails_list
+      emails.order(:primary => :desc).to_a.map { |record| record.email_with_indiferent_access }.join(', ')
+    end
+
     def emails_changed?
       valid_emails.present? && (valid_emails.map { |e| e.changed? || e.new_record? }.any? )
     end

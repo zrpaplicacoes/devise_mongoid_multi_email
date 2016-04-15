@@ -71,6 +71,52 @@ describe 'Devise::Login helper methods' do
 				end
 			end
 
+			context "#emails_list" do
+				it 'responds to the method' do
+					expect(user.respond_to? :emails_list).to be_truthy
+				end
+
+				it 'returns the user emails as unique string, separeted by a comma, ordered by primary true than primary false' do
+					user.password = "somepassword@random123"
+					user.email = "test@test.com"
+					user.emails = "x@y.com, y@x.com"
+
+					user.save
+
+					user.reload
+
+					expect(user.emails_list).to eq "test@test.com, x@y.com, y@x.com"
+				end
+			end
+
+			context "#emails=" do
+				it 'responds to the method' do
+					expect(user.respond_to? :emails=).to be_truthy
+				end
+
+				it 'sets a series of secondary user emails based on a single string of emails' do
+					user.password = "somepassword@random123"
+					user.email = "test@test.com"
+					user.save
+
+					expect(user.persisted?).to be_truthy
+
+					user.reload
+					expect(user.emails.count).to eq 1
+
+					user.emails = "zrp@zrp.com.br, pedro.gryzinsky@zrp.com.br, rafael.costella@zrp.com.br"
+
+					user.reload
+
+					expect(user.emails.count).to eq 4
+					user.emails.each do |record|
+						expect(record.persisted?).to be_truthy
+					end
+
+					expect(UserEmail.count).to eq 4
+				end
+			end
+
 		end
 
 		context 'public class helper methods' do
