@@ -44,7 +44,7 @@ module DeviseMongoidMultiEmail
         if resource
           if duplicated_emails_expect_self.present?
             errors.add(:email, :taken)
-            raise Mongoid::Errors::Validations
+            raise Mongoid::Errors::Validations, self
           end
         else
           errors.add(resource_relation, :blank)
@@ -66,7 +66,10 @@ module DeviseMongoidMultiEmail
       end
 
       def delete_identical_emails_if_confirmed
-        self.class.not_in(:_id => [self.id]).where(:unconfirmed_email => email_with_indiferent_access).delete_all
+        if confirmed?
+          self.class.not_in(:_id => [self.id]).where(:unconfirmed_email => email_with_indiferent_access).delete_all
+        end
+
       end
 
       private

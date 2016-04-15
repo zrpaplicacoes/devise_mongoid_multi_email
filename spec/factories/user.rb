@@ -14,5 +14,9 @@ FactoryGirl.define do
 			end
 		end
 
+		trait :without_email do
+			email nil
+		end
+
   end
 end

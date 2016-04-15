@@ -13,7 +13,7 @@ describe 'Validatable' do
 		end
 
 		context 'if the email format is invalid' do
-			let(:email) { UserEmail.new(unconfirmed_email: "invalid_email") }
+			let(:email) { UserEmail.new(unconfirmed_email: "invalid_email", primary: false) }
 
 			it 'returns false to #valid?' do
 				expect(email.valid?).to be_falsy
@@ -27,7 +27,7 @@ describe 'Validatable' do
 		end
 
 		context 'if the email is blank' do
-			let(:email) { UserEmail.new(unconfirmed_email: "") }
+			let(:email) { UserEmail.new(unconfirmed_email: "", primary: false) }
 
 			it 'returns false to #valid?' do
 				expect(email.valid?).to be_falsy
@@ -41,40 +41,45 @@ describe 'Validatable' do
 		end
 
 		context 'if the email already exists and is confirmed' do
-			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com") }
-			let(:identical_email) { UserEmail.new(unconfirmed_email: "test@test.com") }
-			let(:user) { create(:user) }
+			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com", primary: false) }
+			let(:identical_email) { UserEmail.new(unconfirmed_email: "test@test.com", primary: false) }
 			let(:other_users) { create_list(:user, 2) }
 
 			before :each do
-				user.emails << email
+				@user = create(:user)
+				@user.emails << email
 
 				email.reload
 
 				expect(email.persisted?).to be_truthy
-				expect(email.user).to eq user
-				user.confirm_all # confirms all user emails, including the appended one
-				user.emails.each do |record|
+				expect(email.user).to eq @user
+				# confirms all user emails, including the appended one
+
+				@user.confirm_all
+				@user.emails.each do |record|
 					expect(record.confirmed?).to be_truthy
 				end
+
 			end
 
 			it 'does not allow any user to create it' do
 				another_user = other_users.first
 
+				another_user.emails << identical_email
+
 				expect {
-					another_user.emails << identical_email
+					another_user.save!
 				}.to raise_error Mongoid::Errors::Validations
 
 			end
 
 			it 'returns false to #valid?' do
-				new_email = UserEmail.new(unconfirmed_email: "test@test.com")
+				new_email = UserEmail.new(unconfirmed_email: "test@test.com", primary: false, user: other_users.first)
 				expect(new_email.valid?).to be_falsy
 			end
 
 			it 'adds an error message of already taken' do
-				new_email = UserEmail.new(unconfirmed_email: "test@test.com")
+				new_email = UserEmail.new(unconfirmed_email: "test@test.com", primary: false, user: other_users.first)
 				new_email.valid?
 				expect(new_email.errors['email']).to match_array [error_messages.already_taken]
 			end
@@ -82,26 +87,33 @@ describe 'Validatable' do
 		end
 
 		context 'if the email already exists and is unconfirmed' do
-			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com") }
-			let(:identical_email) { UserEmail.new(unconfirmed_email: "test@test.com") }
-			let(:user) { create(:user) }
+			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com", primary: false) }
+			let(:identical_email) { UserEmail.new(unconfirmed_email: "test@test.com", primary: false) }
 			let(:other_users) { create_list(:user, 2) }
 
 			before :each do
-				user.emails << email
+				@user = create(:user)
+				expect(@user.persisted?).to be_truthy
 
+				@user.emails << email
+				@user.save!
+
+				@user.reload
 				email.reload
 
+				expect(@user.emails.count).to eq 2
 				expect(email.persisted?).to be_truthy
-				expect(email.user).to eq user
+				expect(email.user).to eq @user
 				expect(email.confirmed?).to be_falsy
 			end
 
 			it 'allows other users to create this email' do
 				another_user = other_users.first
-				expect { another_user.emails << identical_email }.to_not raise_error
 
 				another_user.emails << identical_email
+				expect { another_user.save! }.to_not raise_error
+
+				another_user.save!
 
 				another_user.reload
 				identical_email.reload
@@ -113,39 +125,56 @@ describe 'Validatable' do
 				identical_emails = UserEmail.where(unconfirmed_email: identical_email.email_with_indiferent_access).to_a
 
 				expect(identical_emails.size).to eq 2
-				expect(identical_emails.map(&:user)).to match_array [ user, another_user ]
+				expect(identical_emails.map(&:user)).to match_array [ @user, another_user ]
 			end
 
 			it 'does not allow the same user to add this email to his emails' do
-				expect(user.emails.count).to eq 2
-				user.emails << identical_email
-				user.reload
-				expect(user.emails.count).to eq 2
+				expect(@user.emails.count).to eq 2
+				expect { @user.emails << identical_email }.to raise_error Mongoid::Errors::Validations
+				@user.reload
+				expect(@user.emails.count).to eq 2
 			end
 
 			it 'is removed from all users when an user confirms it' do
-				expect(user.emails.count).to eq 2
-
 				another_user = other_users.first
-				expect { another_user.emails << email }.to_not raise_error
-				email.confirm
+				another_user_2 = other_users.last
+				create_list(:email, 2, :secondary, user: another_user_2)
 
+				another_user.emails << identical_email
+				another_user_2.emails << UserEmail.new(unconfirmed_email: "test@test.com", primary: false)
+
+				expect(@user.emails.count).to eq 2
+				expect(another_user.emails.count).to eq 2
+				expect(another_user_2.emails.count).to eq 4
+
+				expect { another_user.save! }.to_not raise_error
+				expect { another_user_2.save! }.to_not raise_error
+
+				identical_email.confirm
+
+				@user.reload
 				another_user.reload
-				email.reload
-				user.reload
+				another_user_2.reload
+				identical_email.reload
 
-				expect(another_user.emails.last.confirmed?).to be_truthy
-				expect(user.emails.count).to eq 1
+				expect(@user.emails.map(&:confirmed?).any?).to be_falsy
+				expect(another_user.emails.map(&:confirmed?).any?).to be_truthy
+				expect(another_user_2.emails.map(&:confirmed?).any?).to be_falsy
+
+				expect(@user.emails.count).to eq 1
+				expect(another_user.emails.count).to eq 2
+				expect(another_user_2.emails.count).to eq 3
 
 			end
 
 			it 'is not confirmed if persisted' do
 				another_user = other_users.first
-				expect { another_user.emails << email }.to_not raise_error
+				another_user.emails << identical_email
+				expect { another_user.save! }.to_not raise_error
 
-				email.reload
+				identical_email.reload
 
-				expect(email.confirmed?).to be_falsy
+				expect(identical_email.confirmed?).to be_falsy
 			end
 
 		end
@@ -187,17 +216,23 @@ describe 'Validatable' do
 
 	context 'Resource class' do
 		let(:user) { create(:user) }
+		let(:new_invalid_primary_email) { UserEmail.new(primary: true, unconfirmed_email: "test@test.com", user: user) }
 
 		it 'does not allow multiple primary emails' do
 			expect { create(:email, primary: true, user: user) }.to raise_error Mongoid::Errors::Validations
-			new_primary_email = UserEmail.new(primary: true, unconfirmed_email: "test@test.com", user: user)
 
-			expect(new_primary_email.valid?).to be_falsy
-			expect(new_primary_email.errors['primary']).to match_array [error_messages.already_taken]
-
-			expect { user.emails << new_primary_email }.to raise_error Mongoid::Errors::Validations
+			expect(new_invalid_primary_email.valid?).to be_falsy
+			expect(new_invalid_primary_email.errors['primary']).to match_array [error_messages.already_taken]
 
 		end
+
+		it 'does not allow me to save an user if the emails relation is invalid' do
+		  user.emails << new_invalid_primary_email
+
+			expect { user.save! }.to raise_error Mongoid::Errors::Validations
+
+		end
+
 	end
 
 end

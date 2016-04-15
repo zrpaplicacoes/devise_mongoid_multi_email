@@ -8,12 +8,14 @@ module DeviseMongoidMultiEmail
 	autoload :ClassHelperMethods       , 'devise_mongoid_multi_email/class_helper_methods'
 	autoload :ClassOverrideMethods     , 'devise_mongoid_multi_email/class_override_methods'
 	autoload :EmailDelegator           , 'devise_mongoid_multi_email/email_delegator'
+	autoload :UserValidators           , 'devise_mongoid_multi_email/user_validators'
 	autoload :EmailValidators          , 'devise_mongoid_multi_email/email_validators'
 
 	included do
+		prepend InstanceOverrideMethods
 		include InstanceHelperMethods
 		extend  ClassHelperMethods
-		prepend InstanceOverrideMethods
+		include UserValidators
 
 		has_many :emails, dependent: :destroy, class_name: "#{self.to_s.demodulize}Email" do
 			def << (records)
