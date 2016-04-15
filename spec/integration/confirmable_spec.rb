@@ -25,7 +25,7 @@ describe 'Confirmable', type: :feature do
 
 		it 'only allows one single primary email' do
 			user = User.create(email: "test@test.com", password: "zrp@12345")
-			expect { user.emails << create_list(:email, 3, primary: true, user: user) }.to raise_error
+			expect { user.emails << create_list(:email, 3, primary: true, user: user) }.to raise_error Mongoid::Errors::Validations
 			expect(user.emails.count).to eq 1
 		end
 

@@ -180,7 +180,7 @@ describe 'Validatable' do
 		end
 
 		context 'if the email does not exist' do
-			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com") }
+			let(:email) { UserEmail.new(unconfirmed_email: "test@test.com", primary: false) }
 
 			it 'returns an error if the email does not belong to an user' do
 				expect { email.save! }.to raise_error Mongoid::Errors::Validations
@@ -189,15 +189,17 @@ describe 'Validatable' do
 			it 'is persisted if the email belongs to an user' do
 				user = create(:user)
 				user.emails << email
+				user.reload
 				email.reload
+
+				expect(user.emails.include? email).to be_truthy
 				expect(email.user).to eq user
 				expect(email.persisted?).to be_truthy
+
 			end
 
 			it 'is not persisted if the email does not have an user' do
 				email.save
-
-				email.reload
 
 				expect(email.persisted?).to be_falsy
 			end
@@ -205,9 +207,17 @@ describe 'Validatable' do
 			it 'is not confirmed if persisted' do
 				user = create(:user)
 				user.emails << email
+
+				user.reload
 				email.reload
+
 				expect(email.user).to eq user
 				expect(email.confirmed?).to be_falsy
+
+				user.emails.each do |record|
+					expect(record.confirmed?).to be_falsy
+				end
+
 			end
 
 		end
