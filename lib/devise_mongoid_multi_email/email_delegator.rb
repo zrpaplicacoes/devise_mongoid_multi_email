@@ -21,6 +21,18 @@ module DeviseMongoidMultiEmail
 				email || unconfirmed_email
 			end
 
+			def update_email_and_send_reconfirmation_instructions email
+				self.email = nil
+				self.unconfirmed_email = email
+				self.confirmation_token = nil
+				self.confirmed_at = nil
+				if save
+					send_confirmation_instructions
+				else
+					false
+				end
+			end
+
 			def send_confirmation_instructions
 				unless @raw_confirmation_token
 					generate_confirmation_token!

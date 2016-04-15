@@ -31,15 +31,17 @@ module DeviseMongoidMultiEmail
 
   def email=(email)
     record = primary_email
-    if email
+
+    if email && record.blank?
       write_attribute(:email, email) unless has_primary_email?
       valid?
-      if errors.keys.include? :email &&
+      if errors.keys.include? :email
         write_attribute(:email, "")
       else
-        build_email email, primary: !has_primary_email?
+        build_email email, primary: true
       end
-
+    elsif email && record && record.valid?
+      record.update_email_and_send_reconfirmation_instructions(email)
     elsif email.blank? && record
       write_attribute(:email, "")
       record.destroy
