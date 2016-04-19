@@ -115,6 +115,25 @@ describe 'Devise::Login helper methods' do
 
 					expect(UserEmail.count).to eq 4
 				end
+
+				it 'raises an error if an invalid email is passed and do not create any ' do
+					user.password = "somepassword@random123"
+					user.email = "test@test.com"
+					user.save
+
+					expect(user.persisted?).to be_truthy
+
+					user.reload
+					expect(user.emails.count).to eq 1
+
+					expect { user.emails = "validone@test.com, invalidok" }.to raise_error Mongoid::Errors::Validations
+
+					user.reload
+
+					expect(user.emails.count).to eq 1
+				end
+
+
 			end
 
 		end
