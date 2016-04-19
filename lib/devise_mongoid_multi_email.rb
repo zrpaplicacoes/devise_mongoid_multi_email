@@ -25,7 +25,8 @@ module DeviseMongoidMultiEmail
 				(result - excluded).each do |record|
 					record.send_confirmation_instructions unless record.primary?
 				end
-				result
+
+				result.reject { |record| !record.persisted? }
 			end
 		end
 
