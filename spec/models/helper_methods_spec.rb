@@ -128,9 +128,9 @@ describe 'Devise::Login helper methods' do
 
 					expect { user.emails = "validone@test.com, invalidok" }.to raise_error Mongoid::Errors::Validations
 
-					user.reload
-
 					expect(user.emails.count).to eq 1
+
+					expect(user.emails.map(&:valid?)).to eq [true]
 				end
 
 
