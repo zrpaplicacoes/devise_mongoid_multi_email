@@ -50,12 +50,9 @@ module DeviseMongoidMultiEmail
   def emails=(emails)
     emails = emails.gsub(" ", '').split(',')
     email_instances = emails.map do |email|
-      self.class.email_class.new(unconfirmed_email: email, primary: false, self.class.resource_association => self)
-    end
-
-    email_instances = email_instances.reject do |record|
-      self.errors.add(:email, :invalid) unless record.valid?
-      !record.valid?
+      new_email = self.class.email_class.new(unconfirmed_email: email, primary: false, self.class.resource_association => self)
+      raise Mongoid::Errors::Validations, new_email unless new_email.valid?
+      new_email
     end
 
     self.emails << email_instances

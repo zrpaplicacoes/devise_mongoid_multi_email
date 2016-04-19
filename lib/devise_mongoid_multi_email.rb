@@ -21,11 +21,9 @@ module DeviseMongoidMultiEmail
 		has_many :emails, dependent: :delete, autosave: true, class_name: "#{self.to_s.demodulize}Email" do
 			def << (records)
 				result = super(records)
-				excluded = result - Array(records)
-				(result - excluded).each do |record|
-					record.send_confirmation_instructions unless record.primary?
-				end
-				result
+				Array(records).each { |record| record.send_confirmation_instructions if (record.valid? && record.persisted? && !record.primary?) }
+
+				result.reject { |record| !record.persisted? }
 			end
 		end
 
