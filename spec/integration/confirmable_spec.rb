@@ -47,6 +47,31 @@ describe 'Confirmable', type: :feature do
 			expect(deliveries_size).to eq 6
 		end
 
+		context 'if the user waits more the limit specified to visit the confirmation link' do
+			let(:user) { create(:user) }
+			let(:primary_email) { user.primary_email }
+
+			before :each do
+				UserEmail.confirm_within = 1.day
+
+				@token = primary_email.send_confirmation_instructions
+				reset_deliveries
+				Timecop.travel(2.days.from_now)
+			end
+
+			after :each do
+				Timecop.return
+			end
+
+			it 'expires the confirmation email' do
+				visit user_confirmation_url(confirmation_token: @token)
+				primary_email.reload
+				expect(primary_email.confirmed?).to be_falsy
+				expect(page).to have_content "Email needs to be confirmed within 1 day, please request a new one"
+			end
+
+		end
+
 	end
 
 	context 'when I try to confirm an user email' do
