@@ -73,10 +73,10 @@ module DeviseMongoidMultiEmail
 				email.confirm if email.persisted?
 			else
 				confirmation_digested = Devise.token_generator.digest(self, :confirmation_token, confirmation_token)
-				confirmable = email_class.find_or_initialize_with_error_by(:confirmation_token, confirmation_digested)
+				email = email_class.find_or_initialize_with_error_by(:confirmation_token, confirmation_digested)
 			end
 
-			confirmable
+			email
 		end
 
 		private
