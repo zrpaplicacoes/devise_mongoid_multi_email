@@ -15,6 +15,8 @@ module DeviseMongoidMultiEmail
         token = set_reset_password_token
         send_devise_notification(:reset_password_instructions, token, { to: params[:email] } )
         token
+      else
+        false
       end
     end
 

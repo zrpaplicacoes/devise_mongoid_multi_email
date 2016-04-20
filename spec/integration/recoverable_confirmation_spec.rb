@@ -54,7 +54,7 @@ describe 'Recoverable confirmation', type: :feature do
 
 			  @old_password = user.encrypted_password
 				@token = user.send_reset_password_instructions email: primary_email.email_with_indiferent_access
-				visit edit_user_password_path(reset_password_token: @token)
+				visit edit_user_password_url(reset_password_token: @token)
 
 				fill_in 'user[password]', with: "newpassword@123"
 				fill_in 'user[password_confirmation]', with: "newpassword@123"
