@@ -45,6 +45,31 @@ describe 'Recoverable confirmation', type: :feature do
 
 		end
 
+		context 'if the user waits more the limit specified to visit the password recover link' do
+			before :each do
+			  @old_password = user.encrypted_password
+				@token = user.send_reset_password_instructions email: primary_email.email_with_indiferent_access
+
+				Timecop.travel(1.day.from_now)
+				visit edit_user_password_path(reset_password_token: @token)
+
+				fill_in 'user[password]', with: "newpassword@123"
+				fill_in 'user[password_confirmation]', with: "newpassword@123"
+
+				click_button 'Change my password'
+			end
+
+			after :each do
+				Timecop.return
+			end
+
+			it 'expires the recover password email' do
+				primary_email.reload
+				expect(page).to have_content "Reset password token is invalid"
+			end
+
+		end
+
 		context 'primary email unconfirmed' do
 
 			before :each do
