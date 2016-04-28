@@ -1,5 +1,4 @@
 require "devise_mongoid_multi_email/engine"
-require 'byebug'
 
 module DeviseMongoidMultiEmail
 	extend ActiveSupport::Concern
