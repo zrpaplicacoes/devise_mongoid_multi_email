@@ -2,7 +2,7 @@ module DeviseMongoidMultiEmail
   module InstanceOverrideMethods
 
     def active_for_authentication?
-      account_active? && super
+      account_active? && confirmed? && super
     end
 
     def inactive_message
