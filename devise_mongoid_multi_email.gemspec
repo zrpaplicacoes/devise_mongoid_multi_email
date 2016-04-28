@@ -10,8 +10,8 @@ Gem::Specification.new do |s|
 	s.authors     = ["Pedro Gryzinsky", "Rafael Costella"]
 	s.email       = ["zrp@zrp.com.br", "pedro.gryzinsky@zrp.com.br", "rafael.costella@zrp.com.br"]
 	s.homepage    = "http://zrp.com.br"
-	s.summary     = "ODOT"
-	s.description = "ODOT"
+	s.summary     = "A small ruby gem to provide multiple email support to devise in mongoid"
+	s.description = "A small ruby gem to provide multiple email support to devise in mongoid"
 	s.license     = "MIT"
 
 	s.files = Dir["{app,config,db,lib}/**/*", "MIT-LICENSE", "Rakefile", "README.md"]
