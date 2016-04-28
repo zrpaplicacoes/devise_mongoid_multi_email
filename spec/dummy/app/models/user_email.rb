@@ -1,6 +1,4 @@
-class Email < ApplicationRecord
-	belongs_to :user
-
+class UserEmail < ApplicationRecord
 	# Basic Email Setup
 	field :email   , type: String
 	field :primary , type: Boolean

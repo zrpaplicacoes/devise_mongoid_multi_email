@@ -14,21 +14,12 @@ module DeviseMongoidMultiEmail
       emails.each { |record| record.confirm }
     end
 
-    def email
-      primary_email.try(:email) || primary_email.try(:unconfirmed_email) || ""
+    def emails_list
+      emails.order(:primary => :desc).to_a.map { |record| record.email_with_indiferent_access }.join(', ')
     end
 
-    def email=(email)
-      record = primary_email
-      if email
-        create_email email, primary: !has_primary_email?
-      elsif email.blank? && record
-        record.destroy
-      end
-    end
-
-    def email_changed?
-      first_email_record.present? && first_email_record.changed?
+    def emails_changed?
+      valid_emails.present? && (valid_emails.map { |e| e.changed? || e.new_record? }.any? )
     end
 
     def primary_email
@@ -56,7 +47,7 @@ module DeviseMongoidMultiEmail
     end
 
     def has_primary_email?
-      first_email_record.present? && first_email_record.primary?
+      primary_email.present?
     end
 
     def resource_class
@@ -65,16 +56,12 @@ module DeviseMongoidMultiEmail
 
     private
 
+    def build_email email, opts
+      self.class.email_class.new({ unconfirmed_email: email, self.class.to_s.underscore => self }.merge(opts))
+    end
+
     def create_email email, opts
-      record = self.class.email_class.new({ unconfirmed_email: email }.merge(opts))
-      self.emails << record
-
-      if persisted?
-        record.save
-      else
-        record.save && save
-      end
-
+      emails << build_email(email, opts)
     end
 
   end

@@ -1,16 +1,9 @@
 describe 'Devise::Login helper methods' do
 
 	context 'User model' do
-		let(:user) { User.new }
+		let(:user) { User.new(password: "dummypass@1234") }
 
 		context 'public instance helper methods' do
-
-			it 'includes a method to see if the primary email changed' do
-				expect(user.respond_to? :email_changed?).to be_truthy
-				expect(user.email_changed?).to be_falsy
-				user.emails << Email.new
-				expect(user.email_changed?).to be_truthy
-			end
 
 			context "#email" do
 				it 'responds to the method' do
@@ -78,6 +71,71 @@ describe 'Devise::Login helper methods' do
 				end
 			end
 
+			context "#emails_list" do
+				it 'responds to the method' do
+					expect(user.respond_to? :emails_list).to be_truthy
+				end
+
+				it 'returns the user emails as unique string, separeted by a comma, ordered by primary true than primary false' do
+					user.password = "somepassword@random123"
+					user.email = "test@test.com"
+					user.emails = "x@y.com, y@x.com"
+
+					user.save
+
+					user.reload
+
+					expect(user.emails_list).to eq "test@test.com, x@y.com, y@x.com"
+				end
+			end
+
+			context "#emails=" do
+				it 'responds to the method' do
+					expect(user.respond_to? :emails=).to be_truthy
+				end
+
+				it 'sets a series of secondary user emails based on a single string of emails' do
+					user.password = "somepassword@random123"
+					user.email = "test@test.com"
+					user.save
+
+					expect(user.persisted?).to be_truthy
+
+					user.reload
+					expect(user.emails.count).to eq 1
+
+					user.emails = "zrp@zrp.com.br, pedro.gryzinsky@zrp.com.br, rafael.costella@zrp.com.br"
+
+					user.reload
+
+					expect(user.emails.count).to eq 4
+					user.emails.each do |record|
+						expect(record.persisted?).to be_truthy
+					end
+
+					expect(UserEmail.count).to eq 4
+				end
+
+				it 'raises an error if an invalid email is passed and do not create any ' do
+					user.password = "somepassword@random123"
+					user.email = "test@test.com"
+					user.save
+
+					expect(user.persisted?).to be_truthy
+
+					user.reload
+					expect(user.emails.count).to eq 1
+
+					expect { user.emails = "validone@test.com, invalidok" }.to raise_error Mongoid::Errors::Validations
+
+					expect(user.emails.count).to eq 1
+
+					expect(user.emails.map(&:valid?)).to eq [true]
+				end
+
+
+			end
+
 		end
 
 		context 'public class helper methods' do
@@ -104,7 +162,7 @@ describe 'Devise::Login helper methods' do
 			end
 
 			it 'returns the email class if I call #email_class method on class' do
-				expect(User.email_class).to eq Email
+				expect(User.email_class).to eq UserEmail
 			end
 
 			context "#find_first_by_auth_conditions" do
@@ -145,12 +203,12 @@ describe 'Devise::Login helper methods' do
 	end
 
 	context 'Email model' do
-		let(:email) { Email.new }
+		let(:email) { UserEmail.new }
 
 		context 'public instance helper methods' do
 			it 'includes a method to retrieve the user email if the email is on the unconfirmed field or is already confirmed' do
-				first_email = Email.new(unconfirmed_email: "test@test.com")
-				second_email = Email.new(email: "test@test.com")
+				first_email = UserEmail.new(unconfirmed_email: "test@test.com")
+				second_email = UserEmail.new(email: "test@test.com")
 				expect(first_email.email_with_indiferent_access).to eq second_email.email_with_indiferent_access
 			end
 		end

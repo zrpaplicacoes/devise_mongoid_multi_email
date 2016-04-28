@@ -1,5 +1,5 @@
 FactoryGirl.define do
-	factory :email do
+	factory :email, class: UserEmail do
 		sequence(:unconfirmed_email) { |n| "zrp_#{n}@zrp.com.br" }
 		primary true
 

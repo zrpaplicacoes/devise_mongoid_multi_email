@@ -9,7 +9,6 @@ require "sprockets/railtie"
 require "rails/test_unit/railtie"
 
 Bundler.require(*Rails.groups)
-require "devise_mongoid_multi_email"
 
 module Dumy
   class Application < Rails::Application
