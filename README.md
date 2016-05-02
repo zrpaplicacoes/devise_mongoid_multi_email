@@ -11,5 +11,16 @@ It requires rails ~> 5.0.0.beta3.
 gem 'devise_mongoid_multi_email'
 ```
 
+Add confirmable to your model and include DeviseMongoidMultiEmail to your model.
+
+```ruby
+# Example: /models/user.rb
+class User
+  include ::DeviseMongoidMultiEmail
+  devise :confirmable
+end
+
+```
+
 ## License
 The gem is available as open source under the terms of the [MIT License](http://opensource.org/licenses/MIT).
