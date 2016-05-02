@@ -30,6 +30,7 @@ module DeviseMongoidMultiEmail
   end
 
   def email=(email)
+    byebug
     record = primary_email
 
     if email && record.blank?
