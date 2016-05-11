@@ -22,7 +22,7 @@ module DeviseMongoidMultiEmail
         set_flash_message!(:notice, :confirmation_sent)
         respond_with({}, location: after_resending_confirmation_instructions_path_for(resource_name))
       else
-        resource.errors.messages[:email] = resource.errors.messages[:unconfirmed_email]
+        resource.errors.messages[:email] = resource.errors.messages[:unconfirmed_email] unless resource.errors.messages[:email].present?
         respond_with(resource)
       end
     end
