@@ -11,13 +11,12 @@ It requires rails ~> 5.0.0.beta3.
 gem 'devise_mongoid_multi_email'
 ```
 
-Add confirmable to your model and include DeviseMongoidMultiEmail to your model.
+If you want, inherit your confirmation controller from ConfirmationsController.
 
 ```ruby
-# Example: /models/user.rb
-class User
-  include ::DeviseMongoidMultiEmail
-  devise :confirmable
+# Example: /user/authentication/confirmations_controller.rb
+class User::Authentication::ConfirmationsController < DeviseMongoidMultiEmail::ConfirmationsController
+	layout 'user/sessions/main'
 end
 
 ```
