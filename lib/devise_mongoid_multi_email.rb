@@ -45,7 +45,7 @@ module DeviseMongoidMultiEmail
 						 :confirm, :unconfirmed_email,
 						 :unconfirmed_email,
 						 :unconfirmed_email=,
-						 to: :primary_email, allow_nil: false
+						 to: :primary_email
 
 		# Overrides Devise Behavior using a Eigenclass to position these
 		# methods below the class itself in the ancestors chain and
